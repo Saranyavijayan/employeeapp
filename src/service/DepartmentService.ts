@@ -1,7 +1,9 @@
 import { plainToClass } from "class-transformer";
 import { Department } from "../app/entities/Department";
 import HttpException from "../app/exception/HttpException";
+import IdNotFoundException from "../app/exception/IdNotFoundException";
 import { DepartmentRespository } from "../app/repository/departmentRepository";
+import { ErrorCodes } from "../app/util/errorCode";
 
 export class DepartmentService{
     departmentRepository: any;
@@ -13,7 +15,14 @@ export class DepartmentService{
     }
 
     async getDepartmentbyId(departnmentId:string){
-        return await this.departmentRepo.getDepartmentbyId(departnmentId)
+
+       const deptdetail=  await this.departmentRepo.getDepartmentbyId(departnmentId);
+       if(!deptdetail){
+        throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
+       }
+       else{
+        return deptdetail;
+       }
     }
     public async createDepartment(departmentDetails: any) {
         try {
@@ -43,7 +52,7 @@ export class DepartmentService{
             
             return save;
         } catch (err) {
-            throw new HttpException(400, "Failed to update department","");
+            throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
         }
     }
     public async deleteDepartment(departmentId:string) {
@@ -53,7 +62,9 @@ export class DepartmentService{
             
             return save;
         } catch (err) {
-            throw new HttpException(400, "Failed to delete department","");
+            //throw new HttpException(400, "Failed to delete department","");
+            throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
+            
         }
     }
     }

@@ -7,11 +7,12 @@ import validationMiddleware from "../middleware/validationMiddleware";
 import { CreateEmployeeDto } from "../dto/createEmployeeDto";
 import authorize from "../middleware/authorize";
 import { CreateUuidDto } from "../dto/CreateUuidDto";
-import { updateEmployeeDto } from "../dto/UpdateEmployeeDto";
+import { UpdateEmployeeDto } from "../dto/UpdateEmployeeDto";
+//import { updateEmployeeDto } from "../dto/UpdateEmployeeDto";
 
 
 class employeeController extends AbstractController {
-  constructor(private EmployeeService: EmployeeService) {
+  constructor(private employeeService: EmployeeService) {
     super(`${APP_CONSTANTS.apiPrefix}/employee`);
     this.initializeRoutes();
   }
@@ -20,19 +21,14 @@ class employeeController extends AbstractController {
     this.router.get(`${this.path}`, authorize(['admin','developer']), this.getEmployees);
     this.router.get(`${this.path}/:id`,authorize(['admin','developer']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), this.getEmployeebyId);
    // this.router.post(`${this.path}`, this.createEmployee);
-    this.router.post(`${this.path}`,authorize(['admin']),
-    validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
-    this.createEmployee);
-    this.router.put(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware( updateEmployeeDto, APP_CONSTANTS.body),this.updateEmployee); 
-    this.router.delete(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), this.deleteEmployee); 
-    this.router.post(
-      `${this.path}/login`,
-      this.login
-    ); 
+    this.router.post(`${this.path}`,authorize(['admin']),validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),this.createEmployee);
+    this.router.put(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware( UpdateEmployeeDto, APP_CONSTANTS.body) ,this.updateEmployee); 
+    this.router.delete(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),this.deleteEmployee); 
+    this.router.post(`${this.path}/login`,this.login); 
   }
   private getEmployees = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data=  await this.EmployeeService.getAllEmployees();
+      const data=  await this.employeeService.getAllEmployees();
       response.status(200);
       
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
@@ -44,7 +40,7 @@ class employeeController extends AbstractController {
   
   private getEmployeebyId = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data=  await this.EmployeeService.getEmployeebyId(request.params.id);
+      const data=  await this.employeeService.getEmployeebyId(request.params.id);
       response.status(200);
       
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
@@ -60,7 +56,7 @@ class employeeController extends AbstractController {
   ) => {
     try {
       console.log(request.body);
-      const data = await this.EmployeeService.createEmployee(request.body);
+      const data = await this.employeeService.createEmployee(request.body);
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );
@@ -75,7 +71,7 @@ class employeeController extends AbstractController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.EmployeeService.updateEmployee(request.params.id,request.body);
+      const data = await this.employeeService.updateEmployee(request.params.id,request.body);
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );
@@ -90,7 +86,7 @@ class employeeController extends AbstractController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.EmployeeService.deleteEmployee(request.params.id);
+      const data = await this.employeeService.deleteEmployee(request.params.id);
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );
@@ -106,8 +102,8 @@ class employeeController extends AbstractController {
   ) => {
     try{
     const loginData = request.body;
-    const loginDetail = await this.EmployeeService.employeeLogin(
-      loginData.name.toLowerCase(),
+    const loginDetail = await this.employeeService.employeeLogin(
+      loginData.username.toLowerCase(),
       loginData.password
     );
     response.send(

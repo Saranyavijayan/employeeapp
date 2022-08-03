@@ -9,6 +9,9 @@ import IncorrectUsernameOrPasswordException from "../app/exception/IncorrectUser
 import jsonwebtoken from "jsonwebtoken";
 import UserNotAuthorizedException from "../app/exception/UserNotAuthorisedException";
 import IdNotFoundException from "../app/exception/IdNotFoundException";
+import { Address } from "../app/entities/address";
+import { CreateEmployeeDto } from "../app/dto/createEmployeeDto";
+import { UpdateEmployeeDto } from "../app/dto/UpdateEmployeeDto";
 
 export class EmployeeService{
     employeeRepository: any;
@@ -27,8 +30,18 @@ async getEmployeebyId(employeeId:string){
       return emp;
     }
 }
-    public async createEmployee(employeeDetails: any) {
+    public async createEmployee(employeeDetails: CreateEmployeeDto) {
         try {
+
+            const newAddress: Address = plainToClass(Address, {
+              hname:employeeDetails.address.hname,
+              hno:employeeDetails.address.hno,
+              city:employeeDetails.address.city,
+              state:employeeDetails.address.state,
+              country:employeeDetails.address.country,
+              pincode:employeeDetails.address.pincode
+
+            })
             const newEmployee = plainToClass(Employee, {
                 name: employeeDetails.name,
                 departmentId: employeeDetails.departmentId,
@@ -37,7 +50,8 @@ async getEmployeebyId(employeeId:string){
                 role:employeeDetails.role,
                 experience:employeeDetails.experience,
                 password:employeeDetails.password ? await bcrypt.hash(employeeDetails.password, 10): '',
-                username: employeeDetails.username
+                username: employeeDetails.username,
+                address: newAddress,
                 // age: employeeDetails.age,
                 // isActive: true,
             });
@@ -49,22 +63,42 @@ async getEmployeebyId(employeeId:string){
         }
     }
 
-    public async updateEmployee(employeeId:string,employeeDetails: any) {
+    public async updateEmployee(employeeId:string,employeeDetails: UpdateEmployeeDto) {
+      //console.log(employeeId);
+      //console.log(employeeDetails);
         try {
+          const addid=await this.employeeRepo.getEmployeebyId(employeeId);
+
+          console.log(addid);
+
+          const newAddress: Address = plainToClass(Address, {
+            id:addid.addressId,
+            hname:employeeDetails.address.hname,
+            hno:employeeDetails.address.hno,
+            city:employeeDetails.address.city,
+            state:employeeDetails.address.state,
+            country:employeeDetails.address.country,
+            pincode:employeeDetails.address.pincode
+
+          })
+
             const newEmployee = plainToClass(Employee, {
+                id:employeeId,
                 name: employeeDetails.name,
                 departmentId: employeeDetails.departmentId,
                 joiningdate: employeeDetails.joiningdate,
                 status: employeeDetails.status,
                 role:employeeDetails.role,
                 experience:employeeDetails.experience,
-                 username: employeeDetails.username,
-                 password:employeeDetails.password
+                 username: employeeDetails.username, 
+                 password:employeeDetails.password ? await bcrypt.hash(employeeDetails.password, 10): '',
+                 address: newAddress
+
                 // age: employeeDetails.age,
                 // isActive: true,
             });
-            const save = await this.employeeRepo.updateEmployeeDetails(employeeId,newEmployee);
-            
+            const save = await this.employeeRepo.updateEmployeeDetails(newEmployee);
+           // console.log(save);
             return save;
             // if(!save){
             //     throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
@@ -73,15 +107,18 @@ async getEmployeebyId(employeeId:string){
             //     return save;
             // }
         } catch (err) {
-            throw new HttpException(400, "Failed to update employee","");
-            //throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
+            //throw new HttpException(400, "Failed to update employee","");
+            throw new IdNotFoundException(ErrorCodes.USER_WITH_ID_NOT_FOUND);
         }
     }
 
     public async deleteEmployee(employeeId:string) {
+
+      const detail=await this.getEmployeebyId(employeeId)
+      if(detail)
         try {
             
-            const save = await this.employeeRepo.softDeleteEmployeeById(employeeId);
+            const save = await this.employeeRepo.softDeleteEmployeeById(detail);
             
             return save;
         } catch (err) {
@@ -94,7 +131,7 @@ async getEmployeebyId(employeeId:string){
         name: string,
         password: string
       ) => {
-        const employeeDetails = await this.employeeRepo.getEmployeeByName(
+        const employeeDetails = await this.employeeRepo.getEmployeeByUsername(
           name
         );
         if (!employeeDetails) {

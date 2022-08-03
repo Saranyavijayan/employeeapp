@@ -5,6 +5,9 @@ import APP_CONSTANTS from "../constants";
 import { DepartmentService } from "../../service/DepartmentService";
 import validationMiddleware from "../middleware/validationMiddleware";
 import { CreateDepartmentDto } from "../dto/CreateDepartmentDto";
+import authorize from "../middleware/authorize";
+import { CreateUuidDto } from "../dto/CreateUuidDto";
+import { UpdateDepartmentDto } from "../dto/UpdateDepartmentDto";
 
 class DepartmentController extends AbstractController {
   constructor(private DeptService: DepartmentService) {
@@ -13,14 +16,15 @@ class DepartmentController extends AbstractController {
   }
   
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, this.getDepartments);
+    this.router.get(`${this.path}`,authorize(['admin','developer']), this.getDepartments);
     //this.router.post(`${this.path}`, this.createDepartment);
     this.router.post(`${this.path}`,
-    validationMiddleware(CreateDepartmentDto, APP_CONSTANTS.body),
+    //authorize(['admin']),
+    //validationMiddleware(CreateDepartmentDto, APP_CONSTANTS.body),
     this.createDepartment);
-    this.router.post(`${this.path}/:id`, this.updateDepartment);
-    this.router.delete(`${this.path}/:id`, this.deleteDepartment);
-    this.router.get(`${this.path}/:id`, this.getDepartmentbyId);
+    this.router.put(`${this.path}/:id`, authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body),this.updateDepartment);
+    this.router.delete(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), this.deleteDepartment);
+    this.router.get(`${this.path}/:id`,authorize(['admin','developer']), validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body),this.getDepartmentbyId);
 
     
   }

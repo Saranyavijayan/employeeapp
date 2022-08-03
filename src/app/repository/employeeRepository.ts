@@ -1,4 +1,4 @@
-import { getConnection } from "typeorm";
+import { DeepPartial, getConnection } from "typeorm";
 import { Employee } from "../entities/Employee";
 
 export class EmployeeRespository{
@@ -9,7 +9,8 @@ export class EmployeeRespository{
 
     async getEmployeebyId(id: string){
         const employeeRepo = getConnection().getRepository(Employee);
-       return employeeRepo.findOne(id);
+       return employeeRepo.findOne({where:{id:id}, relations:['address']});
+    //    return employeeRepo.findOne(id);
    }
 
     public async saveEmployeeDetails(employeeDetails: Employee) {
@@ -18,22 +19,26 @@ export class EmployeeRespository{
     }
 
 
-    public async updateEmployeeDetails(employeeId: string, employeeDetails: Employee) {
+    public async updateEmployeeDetails( employeeDetails: Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
-        const updateEmployeeDetails = await employeeRepo.update({ id: employeeId, deletedAt: null }, employeeDetails);
+        const updateEmployeeDetails = await employeeRepo.save(employeeDetails
+        //    ...employeeDetails,
+         //   id: employeeId,
+        );
         return updateEmployeeDetails;
     }
-    public async softDeleteEmployeeById(id: string) {
+    public async softDeleteEmployeeById(detail:Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
-        return employeeRepo.softDelete({
-            id
-        });
+        return employeeRepo.softRemove(
+            detail
+            
+        );
     }
 
-    public async getEmployeeByName(userName: string) {
+    public async getEmployeeByUsername(username: string) {
         const employeeRepo = getConnection().getRepository(Employee);
         const employeeDetail = await employeeRepo.findOne({
-            where: { name: userName },
+            where: { username: username },
         });
         return employeeDetail;
     }

@@ -28,6 +28,7 @@ const authorize = (permittedRoles: string[]) => {
     } catch (error) {
       return next(new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED));
     }
+    next();
   };
 };
 

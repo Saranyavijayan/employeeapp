@@ -14,27 +14,23 @@ class DepartmentController extends AbstractController {
     super(`${APP_CONSTANTS.apiPrefix}/department`);
     this.initializeRoutes();
   }
-  
-  protected initializeRoutes() {
-    this.router.get(`${this.path}`,authorize(['admin','developer']), this.getDepartments);
-    //this.router.post(`${this.path}`, this.createDepartment);
-    this.router.post(`${this.path}`,
-    //authorize(['admin']),
-    //validationMiddleware(CreateDepartmentDto, APP_CONSTANTS.body),
-    this.createDepartment);
-    this.router.put(`${this.path}/:id`, authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body),this.updateDepartment);
-    this.router.delete(`${this.path}/:id`,authorize(['admin']),validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), this.deleteDepartment);
-    this.router.get(`${this.path}/:id`,authorize(['admin','developer']), validationMiddleware(CreateUuidDto, APP_CONSTANTS.params),validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body),this.getDepartmentbyId);
 
-    
+  protected initializeRoutes() {
+    this.router.get(`${this.path}`, authorize(['admin', 'developer']), this.getDepartments);
+    this.router.post(`${this.path}`, this.createDepartment); this.router.post(`${this.path}`, authorize(['admin']), validationMiddleware(CreateDepartmentDto, APP_CONSTANTS.body), this.createDepartment);
+    this.router.put(`${this.path}/:id`, authorize(['admin']), validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body), this.updateDepartment);
+    this.router.delete(`${this.path}/:id`, authorize(['admin']), validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), this.deleteDepartment);
+    this.router.get(`${this.path}/:id`, authorize(['admin', 'developer']), validationMiddleware(CreateUuidDto, APP_CONSTANTS.params), validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body), this.getDepartmentbyId);
+
+
   }
 
 
   private getDepartments = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data=  await this.DeptService.getAllDepartment();
+      const data = await this.DeptService.getAllDepartment();
       response.status(200);
-      
+
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
     } catch (error) {
       return next(error);
@@ -42,9 +38,9 @@ class DepartmentController extends AbstractController {
   }
   private getDepartmentbyId = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data=  await this.DeptService.getDepartmentbyId(request.params.id);
+      const data = await this.DeptService.getDepartmentbyId(request.params.id);
       response.status(200);
-      
+
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
     } catch (error) {
       return next(error);
@@ -72,7 +68,7 @@ class DepartmentController extends AbstractController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.DeptService.updateDepatment(request.params.id,request.body);
+      const data = await this.DeptService.updateDepatment(request.params.id, request.body);
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );

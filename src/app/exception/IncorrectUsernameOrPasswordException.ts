@@ -2,9 +2,6 @@ import HttpException from "./HttpException";
 import { CustomError } from "../util/errorCode";
 
 
-/**
-
- */
 class IncorrectUsernameOrPasswordException extends HttpException {
 
   constructor(error: CustomError) {

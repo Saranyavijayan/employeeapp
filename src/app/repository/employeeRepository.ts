@@ -1,40 +1,41 @@
-import { DeepPartial, getConnection } from "typeorm";
+import { getConnection } from "typeorm";
 import { Employee } from "../entities/Employee";
 
-export class EmployeeRespository{
-    async getAllEmployees(){
-         const employeeRepo = getConnection().getRepository(Employee);
+export class EmployeeRespository {
+    // get all employee repository
+    async getAllEmployees() {
+        const employeeRepo = getConnection().getRepository(Employee);
         return employeeRepo.find();
     }
-
-    async getEmployeebyId(id: string){
+    // get employee by id repository
+    async getEmployeebyId(id: string) {
         const employeeRepo = getConnection().getRepository(Employee);
-       return employeeRepo.findOne({where:{id:id}, relations:['address']});
-    //    return employeeRepo.findOne(id);
-   }
+        return employeeRepo.findOne({ where: { id: id }, relations: ['address'] });
 
+    }
+    // repository function for saving employee details
     public async saveEmployeeDetails(employeeDetails: Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
         return employeeRepo.save(employeeDetails);
     }
 
-
-    public async updateEmployeeDetails( employeeDetails: Employee) {
+     // repository function for updating employee details
+    public async updateEmployeeDetails(employeeDetails: Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
         const updateEmployeeDetails = await employeeRepo.save(employeeDetails
-        //    ...employeeDetails,
-         //   id: employeeId,
+
         );
         return updateEmployeeDetails;
     }
-    public async softDeleteEmployeeById(detail:Employee) {
+     // repository function for deleting employee details
+    public async softDeleteEmployeeById(detail: Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
         return employeeRepo.softRemove(
             detail
-            
+
         );
     }
-
+     // repository function for getting employee details by name
     public async getEmployeeByUsername(username: string) {
         const employeeRepo = getConnection().getRepository(Employee);
         const employeeDetail = await employeeRepo.findOne({
@@ -43,4 +44,4 @@ export class EmployeeRespository{
         return employeeDetail;
     }
 
-    }
+}

@@ -3,7 +3,6 @@ import express from "express";
 import RequestWithUser from "../util/rest/request";
 import jsonwebtoken from "jsonwebtoken";
 import APP_CONSTANTS from "../constants";
-//import UserNotAuthorizedException from "../exception/UserNotAuthorizedException";
 import { ErrorCodes } from "../util/errorCode";
 import UserNotAuthorizedException from "../exception/UserNotAuthorisedException";
 
@@ -15,16 +14,16 @@ const authorize = (permittedRoles: string[]) => {
     next: express.NextFunction
   ) => {
     try {
-        const token = getTokenFromRequestHeader(req);
-        jsonwebtoken.verify(token, process.env.JWT_TOKEN_SECRET);
-  
-        const data: any = jsonwebtoken.decode(token);
-  
-        const decodedData = JSON.parse(JSON.stringify(data));
-  
-        if (!(permittedRoles.includes(decodedData.role))) {
-          throw new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED);
-        }
+      const token = getTokenFromRequestHeader(req);
+      jsonwebtoken.verify(token, process.env.JWT_TOKEN_SECRET);
+
+      const data: any = jsonwebtoken.decode(token);
+
+      const decodedData = JSON.parse(JSON.stringify(data));
+
+      if (!(permittedRoles.includes(decodedData.role))) {
+        throw new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED);
+      }
     } catch (error) {
       return next(new UserNotAuthorizedException(ErrorCodes.UNAUTHORIZED));
     }

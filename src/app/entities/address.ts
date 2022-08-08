@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, Generated, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AbstractEntity } from "./AbstractEntity";
-import { Employee } from "./Employee";
-//import { Department } from "./Department";
+
+
 
 
 

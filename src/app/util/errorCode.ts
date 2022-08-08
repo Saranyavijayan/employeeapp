@@ -17,6 +17,10 @@ export const ErrorCodes: { [key: string]: CustomError } = {
     VALIDATION_ERROR: {
         CODE: "VALIDATION_ERROR",
         MESSAGE: "Validation failed error",
+    },
+    DEPARTMENT_WITH_ID_NOT_FOUND: {
+        CODE: "DEPARTMENT_WITH_ID_NOT_FOUND",
+        MESSAGE: "Department with given id not found",
     }
     
 };
